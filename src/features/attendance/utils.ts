@@ -130,6 +130,7 @@ export function formatDate(dateStr: string) {
   const date = new Date(dateStr);
 
   return date.toLocaleDateString("id-ID", {
+    timeZone: "Asia/Jakarta",
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -139,6 +140,7 @@ export function formatDate(dateStr: string) {
 export function formatTime(dateStr: string) {
   const date = new Date(dateStr);
   return date.toLocaleTimeString("id-ID", {
+    timeZone: "Asia/Jakarta",
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
