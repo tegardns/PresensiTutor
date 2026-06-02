@@ -27,6 +27,7 @@ export type SessionStatus =
   | "diselesaikan"
   | "tertunda"
   | "disetujui"
+  | "ditolak"
   | "selesai";
 
 export interface Session {

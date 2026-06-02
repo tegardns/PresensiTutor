@@ -118,6 +118,7 @@ export function getStatusCounts(sessions: Session[]): StatusCounts {
       .length,
     tertunda: sessions.filter((session) => session.status === "tertunda")
       .length,
+    ditolak: sessions.filter((session) => session.status === "ditolak").length,
     selesai: sessions.filter((session) => session.status === "selesai").length,
   };
 }
@@ -159,6 +160,8 @@ export function getStatusColor(status: SessionStatus) {
       return "bg-blue-500/10 text-blue-600";
     case "tertunda":
       return "bg-yellow-500/10 text-yellow-600";
+    case "ditolak":
+      return "bg-rose-500/10 text-rose-600 font-semibold";
     case "diselesaikan":
       return "bg-gray-500/10 text-gray-600";
     default:
@@ -170,14 +173,16 @@ export function getStatusLabel(status: SessionStatus) {
   switch (status) {
     case "disetujui":
       return "Disetujui";
-    case "tertunda":
-      return "Tertunda";
-    case "diselesaikan":
-      return "Diselesaikan";
     case "selesai":
       return "Selesai";
+    case "tertunda":
+      return "Tertunda";
+    case "ditolak":
+      return "Ditolak";
+    case "diselesaikan":
+      return "Diselesaikan";
     default:
-      return status;
+      return "Tertunda";
   }
 }
 
