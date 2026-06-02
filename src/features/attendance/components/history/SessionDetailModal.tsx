@@ -3,6 +3,7 @@ import type { Session } from "../../types";
 import {
   formatCurrency,
   formatDate,
+  formatTime,
   getStatusColor,
   getStatusLabel,
 } from "../../utils";
@@ -176,9 +177,15 @@ export default function SessionDetailModal({
               </p>
             </div>
 
-            <div>
-              <p className="text-xs text-gray-500 mb-1">Tanggal</p>
-              <p className="text-sm text-gray-900">{formatDate(session.date)}</p>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-xs text-gray-500 mb-1">Tanggal</p>
+                <p className="text-sm text-gray-900">{formatDate(session.date)}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 mb-1">Jam</p>
+                <p className="text-sm text-gray-900">{formatTime(session.date)}</p>
+              </div>
             </div>
 
             <div>

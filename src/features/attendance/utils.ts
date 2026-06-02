@@ -136,6 +136,15 @@ export function formatDate(dateStr: string) {
   });
 }
 
+export function formatTime(dateStr: string) {
+  const date = new Date(dateStr);
+  return date.toLocaleTimeString("id-ID", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).replace(/\./g, ":");
+}
+
 export function getStatusColor(status: SessionStatus) {
   switch (status) {
     case "disetujui":
