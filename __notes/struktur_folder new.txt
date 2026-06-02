@@ -1,0 +1,143 @@
+Struktur folder presensi-bimbel
+📁 --> folder
+📄 --> file
+
+📁 presensi-bimbel
+|- 📁 guidelines
+   |- 📄 Guidelines.md
+|- 📁 node_modules
+|- 📁 src
+   |- 📁 app
+      |- 📁 components
+         |- 📄 BottomNavigation.tsx
+         |- 📄 SuccessToast.tsx
+      |- 📄 App.tsx
+      |- 📄 types.ts
+   |- 📁 features
+      |- 📁 attendance
+         |- 📁 components
+            |- 📁 add-attendance
+               |- 📄 AddAttendanceHeader.tsx
+               |- 📄 DateTimeFields.tsx
+               |- 📄 DurationSelector.tsx
+               |- 📄 NotesField.tsx
+               |- 📄 PhotoUploadField.tsx
+               |- 📄 SessionIdField.tsx
+               |- 📄 StudentCombobox.tsx
+               |- 📄 SubjectSelect.tsx
+               |- 📄 SubmitAttendanceButton.tsx
+            |- 📁 history
+               |- 📄 EmptySessionState.tsx
+               |- 📄 HistoryHeader.tsx
+               |- 📄 PeriodSelector.tsx
+               |- 📄 SessionCard.tsx
+               |- 📄 SessionDetailModal.tsx
+               |- 📄 SessionList.tsx
+               |- 📄 StatusFilterTabs.tsx
+         |- 📄 constants.ts
+         |- 📄 types.ts
+         |- 📄 utils.ts
+      |- 📁 dashboard
+         |- 📁 components
+            |- 📄 DashboardHeader.tsx
+            |- 📄 EarningsSummary.tsx
+            |- 📄 PayoutTransactionCard.tsx
+            |- 📄 PayoutTransactionList.tsx
+            |- 📄 PeriodSelector.tsx
+            |- 📄 StatCard.tsx
+            |- 📄 StatsGrid.tsx
+         |- 📁 hooks
+            |- 📄 useCurrentDateTime.ts
+         |- 📄 constants.ts
+         |- 📄 types.ts
+         |- 📄 utils.ts
+      |- 📁 settings
+         |- 📁 components
+            |- 📄 BankAccountCard.tsx
+            |- 📄 BankConfirmModal.tsx
+            |- 📄 ChangePasswordCard.tsx
+            |- 📄 PasswordConfirmModal.tsx
+            |- 📄 PasswordModal.tsx
+            |- 📄 PersonalInfoCard.tsx
+            |- 📄 ProfilePhotoSection.tsx
+            |- 📄 SettingsHeader.tsx
+         |- 📄 constants.ts
+         |- 📄 types.ts
+         |- 📄 utils.ts
+   |- 📁 pages
+      |- 📄 AddAttendancePage.tsx (146 baris kode)
+      |- 📄 HistoryPage.tsx (82 baris kode)
+      |- 📄 HomePage.tsx (84 baris kode)
+      |- 📄 SettingsPage.tsx (187 baris kode)
+   |- 📁 shared
+      |- 📁 components
+         |- 📁 figma
+            |- 📄 ImageWithFallback.tsx
+         |- 📁 ui
+            |- 📄 accordion.tsx
+            |- 📄 alert-dialog.tsx
+            |- 📄 alert.tsx
+            |- 📄 aspect-ratio.tsx
+            |- 📄 avatar.tsx
+            |- 📄 badge.tsx
+            |- 📄 breadcrumb.tsx
+            |- 📄 button.tsx
+            |- 📄 calendar.tsx
+            |- 📄 card.tsx
+            |- 📄 carousel.tsx
+            |- 📄 chart.tsx
+            |- 📄 checkbox.tsx
+            |- 📄 collapsible.tsx
+            |- 📄 command.tsx
+            |- 📄 context-menu.tsx
+            |- 📄 dialog.tsx
+            |- 📄 drawer.tsx
+            |- 📄 dropdown-menu.tsx
+            |- 📄 form.tsx
+            |- 📄 hover-card.tsx
+            |- 📄 input-card.tsx
+            |- 📄 input-otp.tsx
+            |- 📄 input.tsx
+            |- 📄 label.tsx
+            |- 📄 menubar.tsx
+            |- 📄 navigation-menu.tsx
+            |- 📄 pagination.tsx
+            |- 📄 popover.tsx
+            |- 📄 progress.tsx
+            |- 📄 radio-group.tsx
+            |- 📄 resizable.tsx
+            |- 📄 scroll-area.tsx
+            |- 📄 select.tsx
+            |- 📄 separator.tsx
+            |- 📄 sheet.tsx
+            |- 📄 sidebar.tsx
+            |- 📄 skeleton.tsx
+            |- 📄 slider.tsx
+            |- 📄 sonner.tsx
+            |- 📄 switch.tsx
+            |- 📄 table.tsx
+            |- 📄 tabs.tsx
+            |- 📄 textarea.tsx
+            |- 📄 toggle-group.tsx
+            |- 📄 toggle.tsx
+            |- 📄 tooltip.tsx
+      |- 📁 hooks
+         |- 📄 use-mobile.ts
+      |- 📁 lib
+         |- 📄 utils.ts
+   |- 📁 styles
+      |- 📄 fonts.css
+      |- 📄 index.css
+      |- 📄 tailwind.css
+      |- 📄 theme.css
+   |- 📄 main.tsx
+|- 📄 ATTRIBUTIONS.md
+|- 📄 default_shacdn_theme.css
+|- 📄 index.html
+|- 📄 package-lock.json
+|- 📄 package.json
+|- 📄 pnpm-workspace.yaml
+|- 📄 postcss.config.mjs
+|- 📄 README.md
+|- 📄 tsconfig.json
+|- 📄 vite.config.ts
