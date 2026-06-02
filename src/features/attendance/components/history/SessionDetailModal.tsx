@@ -27,6 +27,7 @@ export default function SessionDetailModal({
   const [duration, setDuration] = useState(session.duration.toString());
   const [notes, setNotes] = useState(session.notes || "");
   const [submitting, setSubmitting] = useState(false);
+  const [showImagePreview, setShowImagePreview] = useState(false);
 
   const canEdit = session.status === "tertunda" || session.status === "diselesaikan" || session.status === "disetujui";
 
@@ -237,16 +238,46 @@ export default function SessionDetailModal({
             {session.photoUrl && (
               <div>
                 <p className="text-xs text-gray-500 mb-2">Foto Sesi</p>
-                <img 
-                  src={session.photoUrl} 
-                  alt="Foto Sesi" 
-                  className="w-full h-auto rounded-xl border border-gray-200 object-cover max-h-48"
-                />
+                <div 
+                  className="relative cursor-zoom-in group overflow-hidden rounded-xl border border-gray-200"
+                  onClick={() => setShowImagePreview(true)}
+                >
+                  <img 
+                    src={session.photoUrl} 
+                    alt="Foto Sesi" 
+                    className="w-full h-auto object-cover max-h-48 transition-all duration-200 group-hover:brightness-90 group-hover:scale-[1.02]"
+                  />
+                  <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <span className="bg-black/60 text-white text-xs px-3 py-1 rounded-full font-medium backdrop-blur-sm shadow-sm transition-transform duration-200 scale-95 group-hover:scale-100">
+                      Klik untuk memperbesar
+                    </span>
+                  </div>
+                </div>
               </div>
             )}
           </div>
         )}
       </div>
+
+      {showImagePreview && session.photoUrl && (
+        <div 
+          className="fixed inset-0 bg-black/85 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200 cursor-zoom-out"
+          onClick={() => setShowImagePreview(false)}
+        >
+          <button 
+            className="absolute top-4 right-4 text-white/80 hover:text-white bg-black/20 hover:bg-black/40 p-2 rounded-full transition-colors z-10"
+            onClick={() => setShowImagePreview(false)}
+          >
+            <X className="w-6 h-6" />
+          </button>
+          <img 
+            src={session.photoUrl} 
+            alt="Preview Foto Sesi" 
+            className="max-w-full max-h-[90vh] rounded-xl object-contain shadow-2xl animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   );
 }
