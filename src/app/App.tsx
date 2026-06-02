@@ -66,7 +66,7 @@ export default function App() {
 
       localStorage.setItem("token", token);
       localStorage.setItem("role", role);
-      
+
       // Fetch profile details
       const profileResponse = await api.get("/tutor/profile");
       setTutorProfile(profileResponse.data);
@@ -140,8 +140,8 @@ export default function App() {
       )}
 
       {isAuthenticated && currentPage === "settings" && (
-        <SettingsPage 
-          onBack={() => setCurrentPage("home")} 
+        <SettingsPage
+          onBack={() => setCurrentPage("home")}
           tutorProfile={tutorProfile}
           onProfileUpdate={setTutorProfile}
         />
@@ -169,7 +169,7 @@ export default function App() {
       )}
 
       {showSuccessToast && (
-        <SuccessToast message="Presensi berhasil disimpan" />
+        <SuccessToast message="Presensi Berhasil" />
       )}
     </div>
   );

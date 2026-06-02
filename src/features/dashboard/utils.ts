@@ -50,12 +50,13 @@ export function formatCurrency(amount: number) {
 
 export function formatDate(dateStr: string) {
   const date = new Date(dateStr);
+  
+  const day = date.getUTCDate();
+  const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"];
+  const month = months[date.getUTCMonth()];
+  const year = date.getUTCFullYear();
 
-  return date.toLocaleDateString("id-ID", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
+  return `${day} ${month} ${year}`;
 }
 
 export function formatCurrentDate(dateTime: Date) {
