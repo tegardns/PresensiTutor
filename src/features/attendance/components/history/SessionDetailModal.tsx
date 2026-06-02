@@ -153,8 +153,17 @@ export default function SessionDetailModal({
                 className="flex-1 py-2.5 px-4 bg-blue-600 text-white rounded-xl font-semibold text-sm hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
                 disabled={submitting}
               >
-                {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                Simpan
+                {submitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Memproses...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4" />
+                    Simpan
+                  </>
+                )}
               </button>
             </div>
           </div>

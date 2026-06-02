@@ -73,7 +73,7 @@ export default function AddAttendancePage({
     subject,
     duration,
     photo,
-  }) && !submitting;
+  });
 
   function handlePhotoSelect(file: File) {
     setPhoto(file);
@@ -196,6 +196,7 @@ export default function AddAttendancePage({
         <SubmitAttendanceButton
           isFormValid={isFormValid}
           onSubmit={handleSubmit}
+          submitting={submitting}
         />
       </div>
     </div>

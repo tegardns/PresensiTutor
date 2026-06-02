@@ -11,7 +11,7 @@ export default function AddAttendanceHeader({
     <div className="bg-white border-b border-gray-100 sticky top-0 z-10">
 
 
-      <div className="px-5 pb-4 flex items-center gap-3">
+      <div className="px-5 pt-4 pb-4 flex items-center gap-3">
         <button
           onClick={onBack}
           className="p-2 -ml-2 hover:bg-gray-50 rounded-lg transition-colors"
