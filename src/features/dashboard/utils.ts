@@ -6,25 +6,30 @@ import type {
 } from "./types";
 
 export function getDashboardSummary(
-  sessions: DashboardSession[]
+  sessions: DashboardSession[],
+  isBankComplete: boolean
 ): DashboardSummary {
   const totalSessions = sessions.length;
   const totalHours =
     sessions.reduce((sum, session) => sum + session.duration, 0) / 60;
 
-  const settledAmount = sessions
-    .filter((session) => session.status === "diselesaikan")
-    .reduce((sum, session) => sum + session.amount, 0);
+  let settledAmount = 0;
+  let pendingAmount = 0;
+  let approvedAmount = 0;
 
-  // Behavior original: pendingAmount dibuat 0 meskipun ada sesi tertunda.
-  const pendingAmount = 0;
-
-  const approvedAmount = sessions
-    .filter(
-      (session) =>
-        session.status === "disetujui" || session.status === "selesai"
-    )
-    .reduce((sum, session) => sum + session.amount, 0);
+  sessions.forEach((session) => {
+    if (!isBankComplete) {
+      if (session.status === "tertunda" || session.status === "disetujui" || session.status === "diselesaikan") {
+        pendingAmount += session.amount;
+      }
+    } else {
+      if (session.status === "tertunda" || session.status === "diselesaikan") {
+        settledAmount += session.amount;
+      } else if (session.status === "disetujui") {
+        approvedAmount += session.amount;
+      }
+    }
+  });
 
   return {
     totalSessions,

@@ -33,7 +33,7 @@ export default function EarningsSummary({
 
           <div className="flex justify-between items-center pt-3 border-t border-gray-200">
             <span className="text-sm text-gray-600">Disetujui</span>
-            <span className="text-xl font-bold text-green-600">
+            <span className="font-bold text-green-600">
               {formatCurrency(approvedAmount)}
             </span>
           </div>

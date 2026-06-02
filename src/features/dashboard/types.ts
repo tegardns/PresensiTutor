@@ -1,6 +1,7 @@
 export interface HomePageProps {
   tutorName: string;
   tutorPhoto?: string;
+  tutorProfile: any;
   onNavigateToSettings: () => void;
   onLogout: () => void;
 }
@@ -32,6 +33,11 @@ export interface PayoutTransaction {
   date: string;
   amount: number;
   status: PayoutTransactionStatus;
+  pdfUrl?: string | null;
+  periodeStart?: string;
+  periodeEnd?: string;
+  tanggalTransfer?: string;
+  sessions?: any[];
 }
 
 export interface DashboardSummary {

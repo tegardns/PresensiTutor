@@ -1,6 +1,6 @@
 export interface AddAttendancePageProps {
   onBack: () => void;
-  onSubmit: (data: AttendanceData) => void;
+  onSubmitSuccess: () => void;
 }
 
 export interface AttendanceData {
@@ -18,6 +18,9 @@ export interface Student {
   id: string;
   name: string;
   subjects: string[];
+  level?: {
+    name: string;
+  };
 }
 
 export type SessionStatus =

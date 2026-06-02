@@ -1,4 +1,4 @@
-import { useRef, useState, type ChangeEvent } from "react";
+import { useRef, useState, useEffect, type ChangeEvent } from "react";
 
 import SettingsHeader from "@/features/settings/components/SettingsHeader";
 import ProfilePhotoSection from "@/features/settings/components/ProfilePhotoSection";
@@ -8,13 +8,18 @@ import ChangePasswordCard from "@/features/settings/components/ChangePasswordCar
 import BankConfirmModal from "@/features/settings/components/BankConfirmModal";
 import PasswordModal from "@/features/settings/components/PasswordModal";
 import PasswordConfirmModal from "@/features/settings/components/PasswordConfirmModal";
+import api from "@/shared/lib/api";
+import { useAlertConfirm } from "@/shared/contexts/AlertConfirmContext";
 
 interface SettingsPageProps {
   onBack: () => void;
+  tutorProfile: any;
+  onProfileUpdate: (updated: any) => void;
 }
 
-export default function SettingsPage({ onBack }: SettingsPageProps) {
-  const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
+export default function SettingsPage({ onBack, tutorProfile, onProfileUpdate }: SettingsPageProps) {
+  const { showAlert } = useAlertConfirm();
+  const [profilePhoto, setProfilePhoto] = useState<string | null>(tutorProfile?.fotoUrl || null);
   const photoInputRef = useRef<HTMLInputElement>(null);
 
   const [isEditingInfo, setIsEditingInfo] = useState(false);
@@ -24,19 +29,19 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
   const [showBankConfirm, setShowBankConfirm] = useState(false);
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
 
-  const [email] = useState("mellysa.tutor@example.com");
-  const [position] = useState("Tentor Matematika & Fisika");
+  const [email] = useState(tutorProfile?.email || "");
+  const [position] = useState(tutorProfile?.posisi || "Tentor");
 
-  const [fullName, setFullName] = useState("Mellysa");
-  const [whatsapp, setWhatsapp] = useState("081234567890");
-  const [address, setAddress] = useState("Jl. Merdeka No. 123, Jakarta");
+  const [fullName, setFullName] = useState(tutorProfile?.nama || "");
+  const [whatsapp, setWhatsapp] = useState(tutorProfile?.noWa || "");
+  const [address, setAddress] = useState(tutorProfile?.alamat || "");
 
   const [tempFullName, setTempFullName] = useState(fullName);
   const [tempWhatsapp, setTempWhatsapp] = useState(whatsapp);
   const [tempAddress, setTempAddress] = useState(address);
 
-  const [bankName, setBankName] = useState("BCA");
-  const [accountNumber, setAccountNumber] = useState("1234567890");
+  const [bankName, setBankName] = useState(tutorProfile?.namaBank || "");
+  const [accountNumber, setAccountNumber] = useState(tutorProfile?.noRek || "");
 
   const [tempBankName, setTempBankName] = useState(bankName);
   const [tempAccountNumber, setTempAccountNumber] = useState(accountNumber);
@@ -44,6 +49,23 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
+  // Sync profile details when tutorProfile updates
+  useEffect(() => {
+    if (tutorProfile) {
+      setFullName(tutorProfile.nama || "");
+      setWhatsapp(tutorProfile.noWa || "");
+      setAddress(tutorProfile.alamat || "");
+      setBankName(tutorProfile.namaBank || "");
+      setAccountNumber(tutorProfile.noRek || "");
+
+      setTempFullName(tutorProfile.nama || "");
+      setTempWhatsapp(tutorProfile.noWa || "");
+      setTempAddress(tutorProfile.alamat || "");
+      setTempBankName(tutorProfile.namaBank || "");
+      setTempAccountNumber(tutorProfile.noRek || "");
+    }
+  }, [tutorProfile]);
 
   function handlePhotoChange(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -59,11 +81,25 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
     reader.readAsDataURL(file);
   }
 
-  function handleSaveInfo() {
-    setFullName(tempFullName);
-    setWhatsapp(tempWhatsapp);
-    setAddress(tempAddress);
-    setIsEditingInfo(false);
+  async function handleSaveInfo() {
+    try {
+      const response = await api.put("/tutor/profile", {
+        nama: tempFullName,
+        noWa: tempWhatsapp,
+        alamat: tempAddress,
+        namaBank: bankName,
+        noRek: accountNumber,
+      });
+
+      setFullName(tempFullName);
+      setWhatsapp(tempWhatsapp);
+      setAddress(tempAddress);
+      onProfileUpdate(response.data.data);
+      setIsEditingInfo(false);
+    } catch (err: any) {
+      console.error("Gagal menyimpan info profil:", err);
+      showAlert(err.response?.data?.message || "Gagal memperbarui informasi pribadi", "error");
+    }
   }
 
   function handleCancelInfo() {
@@ -77,11 +113,26 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
     setShowBankConfirm(true);
   }
 
-  function handleConfirmBank() {
-    setBankName(tempBankName);
-    setAccountNumber(tempAccountNumber);
-    setIsEditingBank(false);
-    setShowBankConfirm(false);
+  async function handleConfirmBank() {
+    try {
+      const response = await api.put("/tutor/profile", {
+        nama: fullName,
+        noWa: whatsapp,
+        alamat: address,
+        namaBank: tempBankName,
+        noRek: tempAccountNumber,
+      });
+
+      setBankName(tempBankName);
+      setAccountNumber(tempAccountNumber);
+      onProfileUpdate(response.data.data);
+      setIsEditingBank(false);
+      setShowBankConfirm(false);
+    } catch (err: any) {
+      console.error("Gagal menyimpan rekening bank:", err);
+      showAlert(err.response?.data?.message || "Gagal memperbarui rekening bank", "error");
+      setShowBankConfirm(false);
+    }
   }
 
   function handleCancelBank() {
@@ -101,16 +152,40 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
     resetPasswordForm();
   }
 
-  function handleConfirmPasswordChange() {
-    setShowPasswordConfirm(false);
-    setShowPasswordModal(false);
-    resetPasswordForm();
+  function handlePasswordSubmit() {
+    if (newPassword !== confirmPassword) {
+      showAlert("Konfirmasi password baru tidak cocok.", "error");
+      return;
+    }
+    setShowPasswordConfirm(true);
+  }
 
-    alert("Password berhasil diubah. Silakan login kembali.");
+  async function handleConfirmPasswordChange() {
+    try {
+      await api.post("/tutor/change-password", {
+        oldPassword,
+        newPassword,
+      });
+
+      setShowPasswordConfirm(false);
+      setShowPasswordModal(false);
+      resetPasswordForm();
+
+      showAlert("Password berhasil diubah. Silakan masuk kembali dengan password baru.", "success");
+      
+      // Auto logout
+      localStorage.removeItem("token");
+      localStorage.removeItem("role");
+      window.location.reload();
+    } catch (err: any) {
+      console.error("Gagal mengubah password:", err);
+      showAlert(err.response?.data?.message || "Gagal mengubah password. Pastikan password lama benar.", "error");
+      setShowPasswordConfirm(false);
+    }
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50 animate-in fade-in duration-300">
       <SettingsHeader onBack={onBack} />
 
       <div className="px-5 py-6 space-y-5 pb-24">
@@ -171,7 +246,7 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
           onNewPasswordChange={setNewPassword}
           onConfirmPasswordChange={setConfirmPassword}
           onClose={handleClosePasswordModal}
-          onSubmit={() => setShowPasswordConfirm(true)}
+          onSubmit={handlePasswordSubmit}
         />
       )}
 

@@ -1,1 +1,1 @@
-export type Page = "home" | "add-attendance" | "settings" | "history";
+export type Page = "login" | "home" | "add-attendance" | "settings" | "history" | "ai-saka";

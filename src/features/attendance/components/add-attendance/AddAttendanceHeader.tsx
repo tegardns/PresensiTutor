@@ -10,9 +10,9 @@ export default function AddAttendanceHeader({
   return (
     <div className="bg-white border-b border-gray-100 sticky top-0 z-10">
       <div className="px-5 pt-5 pb-3 text-center">
-        <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent tracking-tight">
+        {/* <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent tracking-tight">
           BimbelMelly
-        </h1>
+        </h1> */}
       </div>
 
       <div className="px-5 pb-4 flex items-center gap-3">

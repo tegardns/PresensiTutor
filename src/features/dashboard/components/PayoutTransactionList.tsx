@@ -10,7 +10,7 @@ export default function PayoutTransactionList({
 }: PayoutTransactionListProps) {
   return (
     <div className="px-5 py-4">
-      <h3 className="font-bold text-gray-900 mb-3">Riwayat Transaksi</h3>
+      <h3 className="font-bold text-gray-900 mb-3">Riwayat Transfer</h3>
 
       <div className="space-y-3">
         {transactions.map((transaction) => (
