@@ -8,6 +8,7 @@ import ChangePasswordCard from "@/features/settings/components/ChangePasswordCar
 import BankConfirmModal from "@/features/settings/components/BankConfirmModal";
 import PasswordModal from "@/features/settings/components/PasswordModal";
 import PasswordConfirmModal from "@/features/settings/components/PasswordConfirmModal";
+import PhotoEditorModal from "@/features/settings/components/PhotoEditorModal";
 import api from "@/shared/lib/api";
 import { useAlertConfirm } from "@/shared/contexts/AlertConfirmContext";
 
@@ -28,6 +29,8 @@ export default function SettingsPage({ onBack, tutorProfile, onProfileUpdate }: 
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showBankConfirm, setShowBankConfirm] = useState(false);
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
+  const [showPhotoEditor, setShowPhotoEditor] = useState(false);
+  const [selectedPhotoFile, setSelectedPhotoFile] = useState<File | null>(null);
 
   const [email] = useState(tutorProfile?.email || "");
   const [position] = useState(tutorProfile?.posisi || "Tentor");
@@ -69,16 +72,23 @@ export default function SettingsPage({ onBack, tutorProfile, onProfileUpdate }: 
 
   function handlePhotoChange(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-
     if (!file) return;
+    setSelectedPhotoFile(file);
+    setShowPhotoEditor(true);
+    // Reset input so same file can be re-selected
+    if (photoInputRef.current) {
+      photoInputRef.current.value = "";
+    }
+  }
 
-    const reader = new FileReader();
-
-    reader.onloadend = () => {
-      setProfilePhoto(reader.result as string);
-    };
-
-    reader.readAsDataURL(file);
+  function handlePhotoSaved(photoUrl: string) {
+    setProfilePhoto(photoUrl);
+    setShowPhotoEditor(false);
+    setSelectedPhotoFile(null);
+    // Update parent profile state
+    if (tutorProfile) {
+      onProfileUpdate({ ...tutorProfile, fotoUrl: photoUrl });
+    }
   }
 
   async function handleSaveInfo() {
@@ -254,6 +264,17 @@ export default function SettingsPage({ onBack, tutorProfile, onProfileUpdate }: 
         <PasswordConfirmModal
           onCancel={() => setShowPasswordConfirm(false)}
           onConfirm={handleConfirmPasswordChange}
+        />
+      )}
+
+      {showPhotoEditor && selectedPhotoFile && (
+        <PhotoEditorModal
+          imageFile={selectedPhotoFile}
+          onClose={() => {
+            setShowPhotoEditor(false);
+            setSelectedPhotoFile(null);
+          }}
+          onSaved={handlePhotoSaved}
         />
       )}
     </div>

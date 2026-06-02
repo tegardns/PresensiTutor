@@ -9,6 +9,7 @@ export interface ProfilePhotoSectionProps {
   profilePhoto: string | null;
   photoInputRef: RefObject<HTMLInputElement | null>;
   onPhotoChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  uploading?: boolean;
 }
 
 export interface PersonalInfoCardProps {
