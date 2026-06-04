@@ -3,6 +3,7 @@ import { X, Share, MoreVertical } from "lucide-react";
 
 export default function PwaInstallBanner() {
   const [showBanner, setShowBanner] = useState(false);
+  const [isDismissed, setIsDismissed] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [platform, setPlatform] = useState<"android" | "ios" | "other">("other");
   const [showInstructions, setShowInstructions] = useState(false);
@@ -17,13 +18,7 @@ export default function PwaInstallBanner() {
       return; // Already installed, do not show the banner
     }
 
-    // 2. Check if the user previously dismissed the banner in this browser
-    const isDismissed = localStorage.getItem("pwa_install_banner_dismissed_v2") === "true";
-    if (isDismissed) {
-      return;
-    }
-
-    // 3. Detect the platform/OS
+    // 2. Detect the platform/OS
     const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
     
     // Accurate iOS detection (including iPad in desktop-mode)
@@ -41,9 +36,9 @@ export default function PwaInstallBanner() {
       setPlatform("other");
     }
 
-    setShowBanner(true); // Always display the banner by default for all platforms if not standalone/dismissed
+    setShowBanner(true); // Always display the banner by default for all platforms if not standalone
 
-    // 4. Listen for Chrome / Android beforeinstallprompt event
+    // 3. Listen for Chrome / Android beforeinstallprompt event
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault(); // Prevent native mini-infobar from showing
       setDeferredPrompt(e); // Store event to trigger it later
@@ -77,11 +72,10 @@ export default function PwaInstallBanner() {
   };
 
   const handleDismiss = () => {
-    localStorage.setItem("pwa_install_banner_dismissed_v2", "true");
-    setShowBanner(false);
+    setIsDismissed(true);
   };
 
-  if (!showBanner) return null;
+  if (!showBanner || isDismissed) return null;
 
   return (
     <div className="mx-4 sm:mx-6 mb-4 animate-in slide-in-from-top-4 duration-300">
