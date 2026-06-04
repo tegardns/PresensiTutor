@@ -34,13 +34,13 @@ export default function PwaInstallBanner() {
 
     if (isIOSDevice) {
       setPlatform("ios");
-      setShowBanner(true); // iOS doesn't support beforeinstallprompt, display statically
     } else if (isAndroidDevice) {
       setPlatform("android");
-      setShowBanner(true); // Display statically on Android as a helper
     } else {
       setPlatform("other");
     }
+
+    setShowBanner(true); // Always display the banner by default for all platforms if not standalone/dismissed
 
     // 4. Listen for Chrome / Android beforeinstallprompt event
     const handleBeforeInstallPrompt = (e: Event) => {
@@ -107,6 +107,10 @@ export default function PwaInstallBanner() {
                 <MoreVertical className="w-3.5 h-3.5 inline text-blue-600 mx-0.5" />
                 <span>di Chrome lalu pilih</span>
                 <strong className="text-slate-700 font-semibold">"Add to Home Screen"</strong>
+              </p>
+            ) : platform === "other" && !deferredPrompt ? (
+              <p className="text-[10px] text-slate-500 leading-normal mt-0.5">
+                Ketuk ikon pasang di kolom URL browser Anda untuk install aplikasi desktop
               </p>
             ) : (
               <p className="text-[10px] text-slate-500 leading-normal mt-0.5">

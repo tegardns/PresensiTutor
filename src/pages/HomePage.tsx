@@ -48,12 +48,54 @@ export default function HomePage({
     }
   };
 
+  // Helper to convert base64 VAPID public key to Uint8Array for PushManager subscription
+  const urlBase64ToUint8Array = (base64String: string) => {
+    const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+  };
+
   const enableNotifications = async (silent = false) => {
     if (!tutorProfile || !tutorProfile.id) return;
     try {
-      const simulatedToken = `sim_token_${tutorProfile.id}_${Math.random().toString(36).substring(2, 10)}`;
+      // 1. Request native permission from device
+      if ("Notification" in window) {
+        const permission = await Notification.requestPermission();
+        if (permission !== "granted") {
+          if (!silent) alert("Izin notifikasi ditolak!");
+          return;
+        }
+      } else {
+        if (!silent) alert("Browser ini tidak mendukung push notifikasi.");
+        return;
+      }
+
+      // 2. Register Web Push subscription via Service Worker
+      if (!("serviceWorker" in navigator)) {
+        if (!silent) alert("Service Worker PWA tidak aktif!");
+        return;
+      }
+
+      const registration = await navigator.serviceWorker.ready;
+      
+      // VAPID Public Key generated from web-push
+      const publicVapidKey = "BAJTmXrKXv-zzNrxCzby4nhQfbsAI-eYRfhfhqQVVvQzMy6IRSqTrRC3XXA5U7p5kyMYtIsm4TCUNDGDNLThE_8";
+      const convertedVapidKey = urlBase64ToUint8Array(publicVapidKey);
+
+      // Get or create push subscription
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: convertedVapidKey,
+      });
+
+      // 3. Register the VAPID subscription object to backend database
       await api.post("/notifications/register-token", {
-        token: simulatedToken,
+        token: JSON.stringify(subscription),
         platform: "web",
         tutorId: tutorProfile.id
       });
@@ -61,16 +103,11 @@ export default function HomePage({
       localStorage.setItem("notif_simulated_status", "active");
       setNotifStatus("active");
 
-      if ("Notification" in window) {
-        const permission = await Notification.requestPermission();
-        if (permission === "granted" && !silent) {
-          alert("Notifikasi berhasil diaktifkan!");
-        }
-      } else if (!silent) {
+      if (!silent) {
         alert("Notifikasi berhasil diaktifkan!");
       }
     } catch (error) {
-      console.error("Gagal mengaktifkan notifikasi:", error);
+      console.error("Gagal mengaktifkan Web Push:", error);
       if (!silent) {
         alert("Gagal mengaktifkan notifikasi. Silakan coba lagi.");
       }
