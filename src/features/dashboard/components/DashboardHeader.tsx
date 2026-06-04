@@ -13,6 +13,10 @@ interface DashboardHeaderProps {
   onLogout: () => void;
   logoUrl?: string;
   namaBimbel?: string;
+  notificationsEnabled: boolean;
+  onToggleNotifications: () => void;
+  onNavigateToNotifications: () => void;
+  unreadCount: number;
 }
 
 export default function DashboardHeader({
@@ -24,8 +28,11 @@ export default function DashboardHeader({
   onCloseDropdown,
   onNavigateToSettings,
   onLogout,
+  notificationsEnabled,
+  onToggleNotifications,
+  onNavigateToNotifications,
+  unreadCount,
 }: DashboardHeaderProps) {
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
 
   function handleNavigateToSettings() {
     onCloseDropdown();
@@ -60,18 +67,31 @@ export default function DashboardHeader({
           </div>
         </div>
 
-        {/* Right Side: Modern Hexagonal Settings Icon & Dropdown */}
-        <div className="relative">
+        {/* Right Side: Bell & Settings Menu */}
+        <div className="flex items-center gap-1.5">
+          {/* Bell Icon for Notifications */}
           <button
-            onClick={onToggleDropdown}
-            className={`relative size-10 flex items-center justify-center rounded-xl transition-all duration-200 ${
-              showDropdown 
-                ? "text-blue-600 bg-blue-50/50" 
-                : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
-            }`}
+            onClick={onNavigateToNotifications}
+            className="relative size-10 flex items-center justify-center rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all duration-200 active:scale-95"
+            title="Pemberitahuan"
           >
-            <MoreHorizontal className="size-6 stroke-[2]" />
+            <Bell className="size-5.5 stroke-[2]" />
+            {unreadCount > 0 && (
+              <span className="absolute top-2.5 right-2.5 size-2 bg-red-500 rounded-full ring-2 ring-white animate-pulse" />
+            )}
           </button>
+
+          <div className="relative">
+            <button
+              onClick={onToggleDropdown}
+              className={`relative size-10 flex items-center justify-center rounded-xl transition-all duration-200 ${
+                showDropdown 
+                  ? "text-blue-600 bg-blue-50/50" 
+                  : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
+              }`}
+            >
+              <MoreHorizontal className="size-6 stroke-[2]" />
+            </button>
 
           {showDropdown && (
             <div className="absolute right-0 mt-2 bg-white rounded-[24px] shadow-[0_8px_30px_rgba(0,0,0,0.06)] border border-slate-100 p-4 min-w-[260px] z-50 animate-in fade-in slide-in-from-top-2 duration-200">
@@ -105,7 +125,7 @@ export default function DashboardHeader({
                     <span className="text-xs font-medium text-slate-600">Notifikasi</span>
                   </div>
                   <button
-                    onClick={() => setNotificationsEnabled(!notificationsEnabled)}
+                    onClick={onToggleNotifications}
                     className={`w-8 h-4.5 rounded-full transition-colors duration-200 relative flex items-center ${notificationsEnabled ? "bg-blue-600" : "bg-gray-200"
                       }`}
                   >
@@ -131,6 +151,7 @@ export default function DashboardHeader({
             </div>
           )}
         </div>
+      </div>
 
       </div>
     </div>

@@ -10,6 +10,7 @@ import HomePage from "@/pages/HomePage";
 import SettingsPage from "@/pages/SettingsPage";
 import LoginPage from "@/pages/LoginPage";
 import AISakaPage from "@/pages/AISakaPage";
+import NotifikasiTutorPage from "@/pages/NotifikasiTutorPage";
 import api from "@/shared/lib/api";
 import { useAlertConfirm } from "@/shared/contexts/AlertConfirmContext";
 
@@ -125,6 +126,13 @@ export default function App() {
           tutorProfile={tutorProfile}
           onNavigateToSettings={() => setCurrentPage("settings")}
           onLogout={() => handleLogout(true)}
+          onNavigateToNotifications={() => setCurrentPage("notifications")}
+        />
+      )}
+
+      {isAuthenticated && currentPage === "notifications" && (
+        <NotifikasiTutorPage
+          onBack={() => setCurrentPage("home")}
         />
       )}
 

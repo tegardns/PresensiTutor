@@ -14,6 +14,7 @@ import {
   isCurrentMonth,
 } from "@/features/dashboard/utils";
 import api from "@/shared/lib/api";
+import { Bell } from "lucide-react";
 
 export default function HomePage({
   tutorName,
@@ -21,12 +22,67 @@ export default function HomePage({
   tutorProfile,
   onNavigateToSettings,
   onLogout,
-}: HomePageProps) {
+  onNavigateToNotifications,
+}: HomePageProps & { onNavigateToNotifications: () => void }) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   
   const [sessions, setSessions] = useState<DashboardSession[]>([]);
   const [payouts, setPayouts] = useState<PayoutTransaction[]>([]);
+  
+  const [notifStatus, setNotifStatus] = useState<string>(() => localStorage.getItem("notif_simulated_status") || "inactive");
+  const [registeringNotif, setRegisteringNotif] = useState(false);
+  const [unreadCount, setUnreadCount] = useState<number>(0);
+
+  const fetchUnreadCount = async () => {
+    try {
+      const res = await api.get("/notifications/tutor");
+      const list = res.data || [];
+      const saved = localStorage.getItem("tutor_read_notification_ids");
+      const readIds = saved ? JSON.parse(saved) : [];
+      const unread = list.filter((n: any) => !readIds.includes(n.id)).length;
+      setUnreadCount(unread);
+    } catch (err) {
+      console.error("Gagal mengambil unread count:", err);
+    }
+  };
+
+  const handleToggleNotifications = async () => {
+    if (notifStatus === "active") {
+      localStorage.removeItem("notif_simulated_status");
+      setNotifStatus("inactive");
+      alert("Notifikasi dinonaktifkan!");
+    } else {
+      setRegisteringNotif(true);
+      try {
+        if (!tutorProfile || !tutorProfile.id) {
+          throw new Error("Profil tutor tidak ditemukan");
+        }
+
+        const simulatedToken = `sim_token_${tutorProfile.id}_${Math.random().toString(36).substring(2, 10)}`;
+        
+        await api.post("/notifications/register-token", {
+          token: simulatedToken,
+          platform: "web",
+          tutorId: tutorProfile.id
+        });
+
+        localStorage.setItem("notif_simulated_status", "active");
+        setNotifStatus("active");
+        
+        if ("Notification" in window) {
+          await Notification.requestPermission();
+        }
+
+        alert("Notifikasi Berhasil Diaktifkan!\n\nPerangkat Anda siap menerima push notification dari Admin.");
+      } catch (error) {
+        console.error("Gagal mengaktifkan notifikasi:", error);
+        alert("Gagal mengaktifkan notifikasi. Silakan coba lagi.");
+      } finally {
+        setRegisteringNotif(false);
+      }
+    }
+  };
   const [settings, setSettings] = useState<{ logoUrl?: string; namaBimbel?: string } | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -54,6 +110,7 @@ export default function HomePage({
 
   useEffect(() => {
     fetchDashboardData();
+    fetchUnreadCount();
   }, []);
 
   const isBankComplete = !!(
@@ -116,6 +173,10 @@ export default function HomePage({
         onLogout={onLogout}
         logoUrl={settings?.logoUrl}
         namaBimbel={settings?.namaBimbel}
+        notificationsEnabled={notifStatus === "active"}
+        onToggleNotifications={handleToggleNotifications}
+        onNavigateToNotifications={onNavigateToNotifications}
+        unreadCount={unreadCount}
       />
 
       <PeriodSelector
@@ -124,6 +185,8 @@ export default function HomePage({
         onPreviousMonth={handlePreviousMonth}
         onNextMonth={handleNextMonth}
       />
+
+      {/* PWA Notification Banner Removed As Per Request */}
 
       <StatsGrid
         totalSessions={summary.totalSessions}
