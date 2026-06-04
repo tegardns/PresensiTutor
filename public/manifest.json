@@ -1,7 +1,7 @@
 {
-  "name": "Presensi Tutor - AISaka",
-  "short_name": "Tutor AISaka",
-  "description": "Aplikasi Presensi Tutor Bimbel AISaka",
+  "name": "SakaIn",
+  "short_name": "SakaIn",
+  "description": "Aplikasi Presensi Tutor Bimbel Saka",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f8fafc",

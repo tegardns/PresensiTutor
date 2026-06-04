@@ -100,11 +100,11 @@ self.addEventListener("push", (event) => {
     try {
       data = event.data.json();
     } catch (e) {
-      data = { title: "Notifikasi AISaka", body: event.data.text() };
+      data = { title: "Notifikasi SakaIn", body: event.data.text() };
     }
   }
 
-  const title = data.title || "Notifikasi AISaka";
+  const title = data.title || "Notifikasi SakaIn";
   const options = {
     body: data.body || "Anda menerima pesan baru.",
     icon: "/pwa-icon-192.png",
