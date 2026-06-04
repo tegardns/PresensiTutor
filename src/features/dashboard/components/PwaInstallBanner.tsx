@@ -18,7 +18,7 @@ export default function PwaInstallBanner() {
     }
 
     // 2. Check if the user previously dismissed the banner in this browser
-    const isDismissed = localStorage.getItem("pwa_install_banner_dismissed") === "true";
+    const isDismissed = localStorage.getItem("pwa_install_banner_dismissed_v2") === "true";
     if (isDismissed) {
       return;
     }
@@ -77,7 +77,7 @@ export default function PwaInstallBanner() {
   };
 
   const handleDismiss = () => {
-    localStorage.setItem("pwa_install_banner_dismissed", "true");
+    localStorage.setItem("pwa_install_banner_dismissed_v2", "true");
     setShowBanner(false);
   };
 

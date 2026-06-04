@@ -1,4 +1,4 @@
-const CACHE_NAME = "presensi-tutor-cache-v1";
+const CACHE_NAME = "presensi-tutor-cache-v2";
 const urlsToCache = [
   "/",
   "/index.html",
@@ -8,8 +8,9 @@ const urlsToCache = [
   "/pwa-icon-512.png"
 ];
 
-// Install Event - Caching basic resources
+// Install Event - Caching basic resources and skipping wait for instant activation
 self.addEventListener("install", (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       console.log("Opened cache");
@@ -18,7 +19,7 @@ self.addEventListener("install", (event) => {
   );
 });
 
-// Activate Event - Cleaning old caches
+// Activate Event - Cleaning old caches and claiming clients immediately
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -30,39 +31,62 @@ self.addEventListener("activate", (event) => {
           }
         })
       );
+    }).then(() => {
+      return self.clients.claim();
     })
   );
 });
 
-// Fetch Event - Cache first, fallback to network
+// Fetch Event - Network First for document navigation & APIs, Cache First for static assets
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
 
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      if (response) {
-        return response; // Return from cache
-      }
-      return fetch(event.request).then((fetchResponse) => {
-        const url = event.request.url;
-        if (
-          !fetchResponse ||
-          fetchResponse.status !== 200 ||
-          fetchResponse.type !== "basic" ||
-          url.includes("/api/")
-        ) {
-          return fetchResponse;
+  const url = new URL(event.request.url);
+
+  // Network First for document navigation / index.html / APIs
+  if (
+    event.request.mode === "navigate" ||
+    url.pathname === "/" ||
+    url.pathname === "/index.html" ||
+    url.pathname.includes("/api/")
+  ) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          // If valid static response, cache it for offline fallback
+          if (response.status === 200 && !url.pathname.includes("/api/")) {
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseClone);
+            });
+          }
+          return response;
+        })
+        .catch(() => {
+          // Fallback to cache if offline
+          return caches.match(event.request);
+        })
+    );
+  } else {
+    // Cache First for static assets (js bundles, css, images)
+    event.respondWith(
+      caches.match(event.request).then((cachedResponse) => {
+        if (cachedResponse) {
+          return cachedResponse;
         }
-
-        const responseToCache = fetchResponse.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
+        return fetch(event.request).then((networkResponse) => {
+          if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== "basic") {
+            return networkResponse;
+          }
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
+          return networkResponse;
         });
-
-        return fetchResponse;
-      });
-    })
-  );
+      })
+    );
+  }
 });
 
 // ==========================================
