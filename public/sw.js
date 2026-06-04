@@ -4,8 +4,8 @@ const urlsToCache = [
   "/index.html",
   "/manifest.json",
   "/logo.png",
-  "/icon-192.png",
-  "/icon-512.png"
+  "/pwa-icon-192.png",
+  "/pwa-icon-512.png"
 ];
 
 // Install Event - Caching basic resources
@@ -83,8 +83,8 @@ self.addEventListener("push", (event) => {
   const title = data.title || "Notifikasi AISaka";
   const options = {
     body: data.body || "Anda menerima pesan baru.",
-    icon: "/logo.png",
-    badge: "/logo.png",
+    icon: "/pwa-icon-192.png",
+    badge: "/pwa-icon-192.png",
     vibrate: [100, 50, 100],
     data: {
       url: data.url || "/"
