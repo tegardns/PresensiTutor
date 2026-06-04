@@ -5,6 +5,7 @@ import EarningsSummary from "@/features/dashboard/components/EarningsSummary";
 import PeriodSelector from "@/features/dashboard/components/PeriodSelector";
 import PayoutTransactionList from "@/features/dashboard/components/PayoutTransactionList";
 import StatsGrid from "@/features/dashboard/components/StatsGrid";
+import PwaInstallBanner from "@/features/dashboard/components/PwaInstallBanner";
 import { useCurrentDateTime } from "@/features/dashboard/hooks/useCurrentDateTime";
 import type { HomePageProps, DashboardSession, PayoutTransaction } from "@/features/dashboard/types";
 import {
@@ -178,6 +179,8 @@ export default function HomePage({
         onNavigateToNotifications={onNavigateToNotifications}
         unreadCount={unreadCount}
       />
+
+      <PwaInstallBanner />
 
       <PeriodSelector
         selectedMonth={selectedMonth}
