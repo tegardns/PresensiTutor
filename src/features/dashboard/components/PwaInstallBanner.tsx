@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, Download, Share } from "lucide-react";
+import { X, Download, Share, MoreVertical } from "lucide-react";
 
 export default function PwaInstallBanner() {
   const [showBanner, setShowBanner] = useState(false);
@@ -24,14 +24,20 @@ export default function PwaInstallBanner() {
 
     // 3. Detect the platform/OS
     const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
-    const isIOSDevice = /iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream;
+    
+    // Accurate iOS detection (including iPad in desktop-mode)
+    const isIOSDevice = 
+      /iPad|iPhone|iPod/.test(userAgent) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      
     const isAndroidDevice = /android/i.test(userAgent);
 
     if (isIOSDevice) {
       setPlatform("ios");
-      setShowBanner(true); // iOS doesn't support beforeinstallprompt, so we display the banner statically
+      setShowBanner(true); // iOS doesn't support beforeinstallprompt, display statically
     } else if (isAndroidDevice) {
       setPlatform("android");
+      setShowBanner(true); // Display statically on Android as a helper
     } else {
       setPlatform("other");
     }
@@ -41,7 +47,7 @@ export default function PwaInstallBanner() {
       e.preventDefault(); // Prevent native mini-infobar from showing
       setDeferredPrompt(e); // Store event to trigger it later
       setPlatform("android");
-      setShowBanner(true); // Display our custom minimalist banner
+      setShowBanner(true); // Ensure banner is visible
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
@@ -95,6 +101,13 @@ export default function PwaInstallBanner() {
                 <span>lalu pilih</span>
                 <strong className="text-slate-700 font-semibold">"Add to Home Screen"</strong>
               </p>
+            ) : platform === "android" && !deferredPrompt ? (
+              <p className="text-[10px] text-slate-500 leading-normal mt-0.5 flex items-center flex-wrap gap-1">
+                <span>Ketuk ikon titik tiga</span>
+                <MoreVertical className="w-3.5 h-3.5 inline text-blue-600 mx-0.5" />
+                <span>di Chrome lalu pilih</span>
+                <strong className="text-slate-700 font-semibold">"Add to Home Screen"</strong>
+              </p>
             ) : (
               <p className="text-[10px] text-slate-500 leading-normal mt-0.5">
                 Install di HP agar lebih cepat absen & menerima notifikasi realtime
@@ -104,7 +117,7 @@ export default function PwaInstallBanner() {
         </div>
 
         <div className="flex items-center gap-2 z-10">
-          {platform !== "ios" && (
+          {platform === "android" && deferredPrompt && (
             <button
               onClick={handleInstallClick}
               className="bg-blue-600 hover:bg-blue-700 active:scale-95 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg shadow-sm shadow-blue-500/10 transition-all whitespace-nowrap"
