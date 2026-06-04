@@ -154,25 +154,36 @@ export default function HomePage({
     fetchDashboardData();
     fetchUnreadCount();
 
-    // Auto-prompt permission and set notifications to active by default
-    const savedStatus = localStorage.getItem("notif_simulated_status");
-    if (!savedStatus && tutorProfile?.id) {
-      if ("Notification" in window) {
-        if (Notification.permission === "default") {
-          enableNotifications(true); // Ask permission silently on startup
-        } else if (Notification.permission === "granted") {
-          localStorage.setItem("notif_simulated_status", "active");
-          setNotifStatus("active");
-        } else {
-          // If denied, keep inactive
-          localStorage.setItem("notif_simulated_status", "inactive");
-          setNotifStatus("inactive");
+    if (!tutorProfile || !tutorProfile.id) return;
+
+    // Auto-prompt permission under user-gesture fallback
+    if ("Notification" in window) {
+      if (Notification.permission === "default") {
+        const handleUserGesture = async () => {
+          await enableNotifications(true);
+        };
+        
+        // Listen to first tap anywhere on the screen as a user gesture (bypasses browser automatic prompt blocking)
+        window.addEventListener("click", handleUserGesture, { once: true });
+        window.addEventListener("touchstart", handleUserGesture, { once: true });
+
+        return () => {
+          window.removeEventListener("click", handleUserGesture);
+          window.removeEventListener("touchstart", handleUserGesture);
+        };
+      } else if (Notification.permission === "granted") {
+        if (localStorage.getItem("notif_simulated_status") !== "active") {
+          enableNotifications(true); // Re-register subscription token silently
         }
       } else {
-        // Fallback for browsers with no Notification support
-        localStorage.setItem("notif_simulated_status", "active");
-        setNotifStatus("active");
+        // Denied, update status
+        localStorage.setItem("notif_simulated_status", "inactive");
+        setNotifStatus("inactive");
       }
+    } else {
+      // Fallback for browsers with no Notification support
+      localStorage.setItem("notif_simulated_status", "active");
+      setNotifStatus("active");
     }
   }, [tutorProfile]);
 
