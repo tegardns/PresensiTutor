@@ -48,42 +48,46 @@ export default function HomePage({
     }
   };
 
-  const handleToggleNotifications = async () => {
-    if (notifStatus === "active") {
-      localStorage.removeItem("notif_simulated_status");
-      setNotifStatus("inactive");
-      alert("Notifikasi dinonaktifkan!");
-    } else {
-      setRegisteringNotif(true);
-      try {
-        if (!tutorProfile || !tutorProfile.id) {
-          throw new Error("Profil tutor tidak ditemukan");
+  const enableNotifications = async (silent = false) => {
+    if (!tutorProfile || !tutorProfile.id) return;
+    try {
+      const simulatedToken = `sim_token_${tutorProfile.id}_${Math.random().toString(36).substring(2, 10)}`;
+      await api.post("/notifications/register-token", {
+        token: simulatedToken,
+        platform: "web",
+        tutorId: tutorProfile.id
+      });
+
+      localStorage.setItem("notif_simulated_status", "active");
+      setNotifStatus("active");
+
+      if ("Notification" in window) {
+        const permission = await Notification.requestPermission();
+        if (permission === "granted" && !silent) {
+          alert("Notifikasi berhasil diaktifkan!");
         }
-
-        const simulatedToken = `sim_token_${tutorProfile.id}_${Math.random().toString(36).substring(2, 10)}`;
-        
-        await api.post("/notifications/register-token", {
-          token: simulatedToken,
-          platform: "web",
-          tutorId: tutorProfile.id
-        });
-
-        localStorage.setItem("notif_simulated_status", "active");
-        setNotifStatus("active");
-        
-        if ("Notification" in window) {
-          await Notification.requestPermission();
-        }
-
-        alert("Notifikasi Berhasil Diaktifkan!\n\nPerangkat Anda siap menerima push notification dari Admin.");
-      } catch (error) {
-        console.error("Gagal mengaktifkan notifikasi:", error);
+      } else if (!silent) {
+        alert("Notifikasi berhasil diaktifkan!");
+      }
+    } catch (error) {
+      console.error("Gagal mengaktifkan notifikasi:", error);
+      if (!silent) {
         alert("Gagal mengaktifkan notifikasi. Silakan coba lagi.");
-      } finally {
-        setRegisteringNotif(false);
       }
     }
   };
+
+  const handleToggleNotifications = async () => {
+    if (notifStatus === "active") {
+      localStorage.setItem("notif_simulated_status", "inactive");
+      setNotifStatus("inactive");
+    } else {
+      setRegisteringNotif(true);
+      await enableNotifications(false);
+      setRegisteringNotif(false);
+    }
+  };
+
   const [settings, setSettings] = useState<{ logoUrl?: string; namaBimbel?: string } | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -112,7 +116,28 @@ export default function HomePage({
   useEffect(() => {
     fetchDashboardData();
     fetchUnreadCount();
-  }, []);
+
+    // Auto-prompt permission and set notifications to active by default
+    const savedStatus = localStorage.getItem("notif_simulated_status");
+    if (!savedStatus && tutorProfile?.id) {
+      if ("Notification" in window) {
+        if (Notification.permission === "default") {
+          enableNotifications(true); // Ask permission silently on startup
+        } else if (Notification.permission === "granted") {
+          localStorage.setItem("notif_simulated_status", "active");
+          setNotifStatus("active");
+        } else {
+          // If denied, keep inactive
+          localStorage.setItem("notif_simulated_status", "inactive");
+          setNotifStatus("inactive");
+        }
+      } else {
+        // Fallback for browsers with no Notification support
+        localStorage.setItem("notif_simulated_status", "active");
+        setNotifStatus("active");
+      }
+    }
+  }, [tutorProfile]);
 
   const isBankComplete = !!(
     tutorProfile?.noRek?.trim() &&
