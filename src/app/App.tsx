@@ -14,6 +14,26 @@ import NotifikasiTutorPage from "@/pages/NotifikasiTutorPage";
 import api from "@/shared/lib/api";
 import { useAlertConfirm } from "@/shared/contexts/AlertConfirmContext";
 
+const PAGE_URLS: Record<Page, string> = {
+  login: "/login",
+  home: "/",
+  notifications: "/notifikasi",
+  history: "/riwayat",
+  "add-attendance": "/add-attendance",
+  settings: "/profil",
+  "ai-saka": "/ai-saka",
+};
+
+const URL_PAGES: Record<string, Page> = {
+  "/login": "login",
+  "/": "home",
+  "/notifikasi": "notifications",
+  "/riwayat": "history",
+  "/add-attendance": "add-attendance",
+  "/profil": "settings",
+  "/ai-saka": "ai-saka",
+};
+
 export default function App() {
   const { showConfirm } = useAlertConfirm();
   const [currentPage, setCurrentPage] = useState<Page>("login");
@@ -23,13 +43,27 @@ export default function App() {
   const [tutorProfile, setTutorProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  const navigate = (newPage: Page, replace = false) => {
+    const url = PAGE_URLS[newPage] || "/";
+    if (replace) {
+      window.history.replaceState({ page: newPage }, "", url);
+    } else {
+      window.history.pushState({ page: newPage }, "", url);
+    }
+    setCurrentPage(newPage);
+  };
+
   // Fetch tutor profile if authenticated
-  const fetchProfile = async () => {
+  const fetchProfile = async (initialPage: Page = "home") => {
     try {
       const response = await api.get("/tutor/profile");
       setTutorProfile(response.data);
       setIsAuthenticated(true);
-      setCurrentPage("home");
+      if (initialPage === "login") {
+        navigate("home", true);
+      } else {
+        navigate(initialPage, true);
+      }
     } catch (err) {
       console.error("Gagal mengambil profil:", err);
       handleLogout(false);
@@ -40,13 +74,34 @@ export default function App() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+    const path = window.location.pathname;
+    const initialPage = URL_PAGES[path] || "home";
+
     if (token) {
-      fetchProfile();
+      fetchProfile(initialPage);
     } else {
       setIsAuthenticated(false);
-      setCurrentPage("login");
+      navigate("login", true);
       setLoading(false);
     }
+  }, []);
+
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      const state = event.state;
+      if (state && state.page) {
+        setCurrentPage(state.page);
+      } else {
+        const path = window.location.pathname;
+        const page = URL_PAGES[path] || "home";
+        setCurrentPage(page);
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
   }, []);
 
   const handleLogin = async (username: string, password: string) => {
@@ -72,7 +127,7 @@ export default function App() {
       const profileResponse = await api.get("/tutor/profile");
       setTutorProfile(profileResponse.data);
       setIsAuthenticated(true);
-      setCurrentPage("home");
+      navigate("home", true);
     } catch (error: any) {
       console.error("Login error:", error);
       setLoginError(error.response?.data?.message || "Email atau password salah");
@@ -88,12 +143,12 @@ export default function App() {
     localStorage.removeItem("role");
     setTutorProfile(null);
     setIsAuthenticated(false);
-    setCurrentPage("login");
+    navigate("login", true);
   };
 
   const handleSubmitAttendanceSuccess = () => {
     setShowSuccessToast(true);
-    setCurrentPage("home");
+    navigate("home", true);
 
     window.setTimeout(() => {
       setShowSuccessToast(false);
@@ -124,15 +179,15 @@ export default function App() {
           tutorName={tutorProfile?.nama || tutorProfile?.email || "Tutor"}
           tutorPhoto={tutorProfile?.fotoUrl}
           tutorProfile={tutorProfile}
-          onNavigateToSettings={() => setCurrentPage("settings")}
+          onNavigateToSettings={() => navigate("settings")}
           onLogout={() => handleLogout(true)}
-          onNavigateToNotifications={() => setCurrentPage("notifications")}
+          onNavigateToNotifications={() => navigate("notifications")}
         />
       )}
 
       {isAuthenticated && currentPage === "notifications" && (
         <NotifikasiTutorPage
-          onBack={() => setCurrentPage("home")}
+          onBack={() => window.history.back()}
         />
       )}
 
@@ -142,14 +197,14 @@ export default function App() {
 
       {isAuthenticated && currentPage === "add-attendance" && (
         <AddAttendancePage
-          onBack={() => setCurrentPage("home")}
+          onBack={() => window.history.back()}
           onSubmitSuccess={handleSubmitAttendanceSuccess}
         />
       )}
 
       {isAuthenticated && currentPage === "settings" && (
         <SettingsPage
-          onBack={() => setCurrentPage("home")}
+          onBack={() => window.history.back()}
           tutorProfile={tutorProfile}
           onProfileUpdate={setTutorProfile}
         />
@@ -161,7 +216,7 @@ export default function App() {
 
       {showBottomNav && (currentPage === "home" || currentPage === "history") && (
         <button
-          onClick={() => setCurrentPage("add-attendance")}
+          onClick={() => navigate("add-attendance")}
           className="fixed bottom-20 right-5 z-40 size-14 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full shadow-lg hover:from-blue-700 hover:to-indigo-700 hover:scale-105 active:scale-95 transition-all flex items-center justify-center"
           title="Tambah Presensi"
         >
@@ -172,7 +227,7 @@ export default function App() {
       {showBottomNav && (
         <BottomNavigation
           currentPage={currentPage}
-          onNavigate={setCurrentPage}
+          onNavigate={(page) => navigate(page)}
         />
       )}
 
